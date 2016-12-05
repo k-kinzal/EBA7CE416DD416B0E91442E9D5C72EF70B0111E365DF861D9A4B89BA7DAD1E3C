@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: A starter AWS Lambda function.
+Parameters:
+  LambdaExectionRoleArn:
+    Type: String
+    Description: Role Arn of Lambda execution
+Resources:
+  MyFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: src/index.handler
+      Runtime: nodejs4.3
+      CodeUri: .
+      Description: A starter AWS Lambda function.
+      MemorySize: 1536
+      Timeout: 10
+      Role:
+        Ref: LambdaExectionRoleArn

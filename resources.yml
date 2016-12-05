@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  BucketName:
+    Type: String
+    Description: Bucket for uploading Lambda code
+Resources:
+  Bucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName:
+        Ref: BucketName
+    DeletionPolicy: "Delete"
+  LambdaExectionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        -
+          PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "arn:aws:logs:*:*:*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "kms:Decrypt"
+                Resource: "*"
+  LambdaExectionInstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: "/"
+      Roles:
+        -
+          Ref: "LambdaExectionRole"
+  Key:
+    Type: "AWS::KMS::Key"
+    Properties:
+      Description: "Key used for Lambda environment variables"
+      KeyPolicy:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Sid: "Allow administration of the key"
+            Effect: "Allow"
+            Principal:
+              AWS:
+                "Fn::Join": [ ":", [ "arn:aws:sts:", {"Ref" : "AWS::AccountId"}, "root" ] ]
+            Action:
+              - "kms:*"
+            Resource: "*"
+          -
+            Effect: "Allow"
+            Principal:
+              AWS:
+                - !GetAtt LambdaExectionRole.Arn
+            Action:
+              - "kms:Decrypt"
+            Resource: "*"
+Outputs:
+  KeyId:
+    Value: !Ref Key
+  LambdaExectionRoleArn:
+    Value: !GetAtt LambdaExectionRole.Arn
