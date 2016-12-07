@@ -1,0 +1,12 @@
+env:
+  node: true
+plugins:
+  - node
+  - standard
+  - promise
+extends:
+  - eslint:recommended
+  - plugin:node/recommended
+rules:
+  node/no-unsupported-features: [error, {version: 4}]
+  no-console: 0

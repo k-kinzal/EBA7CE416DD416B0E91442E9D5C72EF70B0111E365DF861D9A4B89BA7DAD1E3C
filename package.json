@@ -41,11 +41,17 @@
     "clean:bucket": "npm config delete ${npm_package_name}:s3_bucket",
     "clean:prefix": "npm config delete ${npm_package_name}:stack_name",
     "clean:dir": "rimraf .dist",
-    "clean": "npm run clean:stack && npm run clean:bucket && npm run clean:prefix && npm run clean:dir"
+    "clean": "npm run clean:stack && npm run clean:bucket && npm run clean:prefix && npm run clean:dir",
+    "lint": "eslint src/",
   },
   "dependencies": {},
   "devDependencies": {
     "bestzip": "^1.1.3",
+    "eslint": "^3.11.1",
+    "eslint-config-standard": "^6.2.1",
+    "eslint-plugin-node": "^3.0.5",
+    "eslint-plugin-promise": "^3.4.0",
+    "eslint-plugin-standard": "^2.0.1",
     "mkdirp": "^0.5.1",
     "rimraf": "^2.5.4"
   }
