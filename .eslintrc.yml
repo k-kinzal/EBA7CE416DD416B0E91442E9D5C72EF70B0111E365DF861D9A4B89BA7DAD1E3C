@@ -4,6 +4,7 @@ plugins:
   - node
   - standard
   - promise
+  - flowtype
 extends:
   - eslint:recommended
   - plugin:node/recommended
