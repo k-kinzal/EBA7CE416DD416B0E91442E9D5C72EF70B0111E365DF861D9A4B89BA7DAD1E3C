@@ -16,6 +16,7 @@
     "iam_role_arn": ""
   },
   "scripts": {
+    "postinstall": "flow-typed install",
     "init:mkdir": "mkdirp .dist",
     "init:prefix": "read -p \"Please input prefix of resources[]:\" p; npm config set ${npm_package_name}:resource_prefix \"${p}\"",
     "init:bucket": "p=$(npm config get ${npm_package_name}:resource_prefix);read -p \"Please input bucket name[${p}eba7ce4]:\" s; npm config set ${npm_package_name}:s3_bucket \"${p}${s:-eba7ce4}\"",
@@ -48,6 +49,7 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "aws-sdk": "^2.7.13",
     "bestzip": "^1.1.3",
     "eslint": "^3.11.1",
     "eslint-config-standard": "^6.2.1",
@@ -56,6 +58,8 @@
     "eslint-plugin-promise": "^3.4.0",
     "eslint-plugin-standard": "^2.0.1",
     "flow-bin": "^0.36.0",
+    "flow-typed": "^2.0.0",
+    "lodash": "^4.17.2",
     "mkdirp": "^0.5.1",
     "rimraf": "^2.5.4"
   }

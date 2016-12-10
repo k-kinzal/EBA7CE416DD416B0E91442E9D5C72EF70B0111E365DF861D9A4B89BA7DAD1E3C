@@ -1,7 +1,9 @@
 [ignore]
+.*/\.dist/.*
 
 [include]
 
 [libs]
+flow-typed
 
 [options]
