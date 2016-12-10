@@ -10,6 +10,121 @@ Resources:
       BucketName:
         Ref: BucketName
     DeletionPolicy: "Delete"
+  StepFunctionsCustomResource:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Handler: index.handler
+      Role: !GetAtt StepFunctionsCustomResourceRole.Arn
+      Code:
+        ZipFile: |
+          "use strict"
+          require('child_process').execSync('export HOME=/tmp && npm install aws-sdk@2.7.13', {cwd: '/tmp'});
+          let AWS = require('/tmp/node_modules/aws-sdk/');
+          let sf = new AWS.StepFunctions();
+          let response = require('cfn-response');
+
+          exports.handler = (event, context, callback) => {
+            Promise.resolve().then(() => {
+              switch (event.RequestType) {
+                case "Create":
+                  return new Promise((resolve, reject) => {
+                    let params = {
+                      name: event.ResourceProperties.Name,
+                      definition: JSON.stringify(event.ResourceProperties.Definition, (k, v) => v === 'true' ? true : v === 'false' ? false : v),
+                      roleArn: event.ResourceProperties.RoleArn
+                    };
+                    console.log('StateFunctions::CreateStateMachine', params);
+                    sf.createStateMachine(params, (err, data) => err ? reject(err) : resolve(data));
+                  });
+                case "Update":
+                  return new Promise((resolve, reject) => {
+                    let params = {
+                      stateMachineArn: `arn:aws:states:${process.env.AWS_REGION}:${context.invokedFunctionArn.split(":")[4]}:stateMachine:${event.ResourceProperties.Name}`
+                    };
+                    console.log('StateFunctions::DeleteStateMachine', params);
+                    sf.deleteStateMachine(params, (err, data) => err ? reject(err) : resolve(data));
+                  }).then(() => {
+                    return new Promise((resolve, reject) => {
+                      let params = {
+                        name: event.ResourceProperties.Name,
+                        definition: JSON.stringify(event.ResourceProperties.Definition, (k, v) => v === 'true' ? true : v === 'false' ? false : v),
+                        roleArn: event.ResourceProperties.RoleArn
+                      };
+                    console.log('StateFunctions::CreateStateMachine', params);
+                      sf.createStateMachine(params, (err, data) => err ? reject(err) : resolve(data));
+                    });
+                  });
+                case "Delete":
+                  return new Promise((resolve, reject) => {
+                    let params = {
+                      stateMachineArn: `arn:aws:states:${process.env.AWS_REGION}:${context.invokedFunctionArn.split(":")[4]}:stateMachine:${event.ResourceProperties.Name}`
+                    };
+                    console.log('StateFunctions::DeleteStateMachine', params);
+                    sf.deleteStateMachine(params, (err, data) => err ? reject(err) : resolve(data));
+                  });
+                default:
+                  throw new Error(`Unkown RequestType: '${event.RequestType}'`);
+              }
+            }).then((data) => {
+              let responseData = {
+                stateMachineArn: data.stateMachineArn
+              };
+              console.log('CfnResponse::Success', responseData);
+              response.send(event, context, response.SUCCESS, responseData);
+            }).catch((err) => {
+              let responseData = {
+                Error: err.toString()
+              };
+              console.log('CfnResponse::Failed', responseData);
+              response.send(event, context, response.FAILED, responseData);
+            });
+          };
+      Runtime: nodejs4.3
+      Timeout: 30
+  StepFunctionsCustomResourceRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        -
+          PolicyName: StepFunctionsCustomResourceRolePolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "arn:aws:logs:*:*:*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "states:*"
+                Resource: "*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "iam:PassRole"
+                Resource: "*"
+  StepFunctionsCustomResourceInstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: "/"
+      Roles:
+        -
+          Ref: "StepFunctionsCustomResourceRole"
   LambdaExectionRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -26,7 +141,7 @@ Resources:
       Path: "/"
       Policies:
         -
-          PolicyName: "root"
+          PolicyName: LambdaExectionRolePolicy
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -76,5 +191,7 @@ Resources:
 Outputs:
   KeyId:
     Value: !Ref Key
+  StepFunctionsCustomResourceArn:
+    Value: !GetAtt StepFunctionsCustomResource.Arn
   LambdaExectionRoleArn:
     Value: !GetAtt LambdaExectionRole.Arn

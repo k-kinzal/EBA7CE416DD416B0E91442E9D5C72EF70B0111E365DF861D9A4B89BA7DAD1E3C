@@ -2,6 +2,9 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 Description: A starter AWS Lambda function.
 Parameters:
+  StepFunctionsCustomResourceArn:
+    Type: String
+    Description: Role Arn of StepFunctions Custom Resource
   LambdaExectionRoleArn:
     Type: String
     Description: Role Arn of Lambda execution
@@ -17,3 +20,18 @@ Resources:
       Timeout: 10
       Role:
         Ref: LambdaExectionRoleArn
+  StepFunctions:
+    Type: 'Custom::StepFunctions'
+    Properties:
+      ServiceToken:
+        Ref: StepFunctionsCustomResourceArn
+      Name: test-step
+      RoleArn: arn:aws:iam::125043710017:role/service-role/StatesExecutionRole-us-east-1
+      Definition:
+        Comment: "A Hello World example of the Amazon States Language using an AWS Lambda Function"
+        StartAt: HelloWorld
+        States:
+          HelloWorld:
+            Type: Task
+            Resource: !GetAtt MyFunction.Arn
+            End: true
