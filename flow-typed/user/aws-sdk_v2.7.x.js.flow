@@ -1,0 +1,58 @@
+type StepFunctions_CreateStateMachine_Params = {
+  name: string;
+  definition: string;
+  roleArn: string;
+};
+type StepFunctions_CreateStateMachine_Result = {
+  stateMachineArn: string;
+  creationDate: number;
+};
+type StepFunctions_StartExecution_Params = {
+  stateMachineArn: string;
+  name?: string;
+  input?: string;
+};
+type StepFunctions_StartExecution_Result = {
+  executionArn: string;
+};
+type StepFunctions_DescribeStateMachine_Params = {
+  stateMachineArn: string;
+  startDate: number;
+};
+type StepFunctions_DescribeStateMachine_Result = {
+  stateMachineArn: string;
+  name: string;
+  status: string;
+  definition: string;
+  roleArn: string;
+  creationDate: number;
+};
+type StepFunctions_DescribeExecution_Params = {
+  executionArn: string;
+};
+type StepFunctions_DescribeExecution_Result = {
+  executionArn: string;
+  stateMachineArn: string;
+  name: string;
+  status: string;
+  startDate: number;
+  stopDate: number;
+  input: string;
+  output: string;
+};
+type StepFunctions_DeleteStateMachine_Params = {
+  stateMachineArn: string;
+};
+type StepFunctions_DeleteStateMachine_Result = {
+
+};
+
+declare module 'aws-sdk' {
+  declare class StepFunctions {
+    createStateMachine(params: StepFunctions_CreateStateMachine_Params, callback: (err: Error, data: StepFunctions_CreateStateMachine_Result) => void): void;
+    startExecution(params: StepFunctions_StartExecution_Params, callback: (err: Error, data: StepFunctions_StartExecution_Result) => void): void;
+    describeStateMachine(params: StepFunctions_DescribeStateMachine_Params, callback: (err: Error, data: StepFunctions_DescribeStateMachine_Result) => void): void;
+    describeExecution(params: StepFunctions_DescribeExecution_Params, callback: (err: Error, data: StepFunctions_DescribeExecution_Result) => void): void;
+    deleteStateMachine(params: StepFunctions_DeleteStateMachine_Params, callback: (err: Error, data: StepFunctions_DeleteStateMachine_Result) => void): void;
+  }
+}

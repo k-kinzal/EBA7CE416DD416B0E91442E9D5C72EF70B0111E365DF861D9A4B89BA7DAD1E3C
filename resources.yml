@@ -30,7 +30,7 @@ Resources:
                   return new Promise((resolve, reject) => {
                     let params = {
                       name: event.ResourceProperties.Name,
-                      definition: JSON.stringify(event.ResourceProperties.Definition, (k, v) => v === 'true' ? true : v === 'false' ? false : v),
+                      definition: JSON.stringify(event.ResourceProperties.Definition, (k, v) => !Number.isNaN(parseInt(v)) ? parseInt(v) : v === 'true' ? true : v === 'false' ? false : v),
                       roleArn: event.ResourceProperties.RoleArn
                     };
                     console.log('StateFunctions::CreateStateMachine', params);
@@ -47,7 +47,7 @@ Resources:
                     return new Promise((resolve, reject) => {
                       let params = {
                         name: event.ResourceProperties.Name,
-                        definition: JSON.stringify(event.ResourceProperties.Definition, (k, v) => v === 'true' ? true : v === 'false' ? false : v),
+                        definition: JSON.stringify(event.ResourceProperties.Definition, (k, v) => !Number.isNaN(parseInt(v)) ? parseInt(v) : v === 'true' ? true : v === 'false' ? false : v),
                         roleArn: event.ResourceProperties.RoleArn
                       };
                     console.log('StateFunctions::CreateStateMachine', params);
@@ -156,6 +156,16 @@ Resources:
                 Effect: "Allow"
                 Action:
                   - "kms:Decrypt"
+                Resource: "*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "states:*"
+                Resource: "*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "iam:PassRole"
                 Resource: "*"
   LambdaExectionInstanceProfile:
     Type: "AWS::IAM::InstanceProfile"

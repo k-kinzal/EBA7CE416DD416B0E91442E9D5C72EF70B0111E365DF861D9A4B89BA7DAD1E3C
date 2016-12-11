@@ -9,15 +9,62 @@ Parameters:
     Type: String
     Description: Role Arn of Lambda execution
 Resources:
-  MyFunction:
+  RangeFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
-      Handler: src/index.handler
+      Handler: src/tasks/range.handler
       Runtime: nodejs4.3
       CodeUri: .
-      Description: A starter AWS Lambda function.
+      Description: return range.
       MemorySize: 1536
       Timeout: 10
+      Role:
+        Ref: LambdaExectionRoleArn
+  MapperFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: src/tasks/mapper.handler
+      Runtime: nodejs4.3
+      CodeUri: .
+      Description: map function.
+      MemorySize: 1536
+      Timeout: 10
+      Role:
+        Ref: LambdaExectionRoleArn
+  ParallelMapPrepareFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: src/tasks/parallel-map-prepare.handler
+      Runtime: nodejs4.3
+      CodeUri: .
+      Description: prepare for parallel map.
+      MemorySize: 1536
+      Timeout: 60
+      Role:
+        Ref: LambdaExectionRoleArn
+      Environment:
+        Variables:
+          MAPPER_FUNCTION_ARN: !GetAtt MapperFunction.Arn
+  ParallelMapExecuteFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: src/tasks/parallel-map-execute.handler
+      Runtime: nodejs4.3
+      CodeUri: .
+      Description: execute for parallel map.
+      MemorySize: 1536
+      Timeout: 60
+      Role:
+        Ref: LambdaExectionRoleArn
+  ParallelMapFinishFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: src/tasks/parallel-map-finish.handler
+      Runtime: nodejs4.3
+      CodeUri: .
+      Description: finish for parallel map.
+      MemorySize: 1536
+      Timeout: 300
       Role:
         Ref: LambdaExectionRoleArn
   StepFunctions:
@@ -25,13 +72,53 @@ Resources:
     Properties:
       ServiceToken:
         Ref: StepFunctionsCustomResourceArn
-      Name: test-step
+      Name: test-step-2
       RoleArn: arn:aws:iam::125043710017:role/service-role/StatesExecutionRole-us-east-1
       Definition:
-        Comment: "A Hello World example of the Amazon States Language using an AWS Lambda Function"
-        StartAt: HelloWorld
+        Comment: "AAA"
+        StartAt: Range
         States:
-          HelloWorld:
+          Range:
             Type: Task
-            Resource: !GetAtt MyFunction.Arn
+            Resource: !GetAtt RangeFunction.Arn
+            Next: ParallelMapPrepareFunction
+          ParallelMapPrepareFunction:
+            Type: Task
+            Resource: !GetAtt ParallelMapPrepareFunction.Arn
+            Next: ParallelMapExecuteFunction
+          ParallelMapExecuteFunction:
+            Type: Task
+            Resource: !GetAtt ParallelMapExecuteFunction.Arn
+            Next: ParallelMapFinishFunction
+          ParallelMapFinishFunction:
+            Type: Task
+            Resource: !GetAtt ParallelMapFinishFunction.Arn
+            Retry:
+              -
+                ErrorEquals: ["HandledError"]
+                IntervalSeconds: 1
+                MaxAttempts: 10
+                BackoffRate: 2.0
+            Next: IfProgressToRetry
+          IfProgressToRetry:
+            Type: "Choice"
+            Choices:
+              -
+                Variable: "$.status"
+                StringEquals: "SUCCEEDED"
+                Next: Success
+              -
+                Variable: "$.status"
+                StringEquals: "RUNNING"
+                Next: Retly
+            Default: Fail
+          Retly:
+            Type: Pass
+            OutputPath: "$.executionArn"
+            Next: ParallelMapFinishFunction
+          Fail:
+            Type: Fail
+          Success:
+            Type: Pass
+            OutputPath: "$.values"
             End: true
