@@ -96,8 +96,8 @@ asynckit@^0.4.0:
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
 
 aws-sdk@^2.7.13:
-  version "2.7.13"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.7.13.tgz#bb2384b6b49d45d0bcc6ff1701aff32db042a57c"
+  version "2.7.15"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.7.15.tgz#b3257c95553dfa28707f468bc664f0b14f506295"
   dependencies:
     buffer "4.9.1"
     crypto-browserify "1.0.9"
@@ -340,8 +340,8 @@ dashdash@^1.12.0:
     assert-plus "^1.0.0"
 
 debug@^2.1.1:
-  version "2.3.3"
-  resolved "https://registry.yarnpkg.com/debug/-/debug-2.3.3.tgz#40c453e67e6e13c901ddec317af8986cda9eff8c"
+  version "2.4.4"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-2.4.4.tgz#c04d17a654e9202464803f096153f70a6f31f4be"
   dependencies:
     ms "0.7.2"
 
@@ -488,8 +488,8 @@ eslint-plugin-standard@^2.0.1:
   resolved "https://registry.yarnpkg.com/eslint-plugin-standard/-/eslint-plugin-standard-2.0.1.tgz#3589699ff9c917f2c25f76a916687f641c369ff3"
 
 eslint@^3.11.1:
-  version "3.12.0"
-  resolved "https://registry.yarnpkg.com/eslint/-/eslint-3.12.0.tgz#1dfa4ef0082e35feed90a0fb1f7996d1d426b249"
+  version "3.12.2"
+  resolved "https://registry.yarnpkg.com/eslint/-/eslint-3.12.2.tgz#6be5a9aa29658252abd7f91e9132bab1f26f3c34"
   dependencies:
     babel-code-frame "^6.16.0"
     chalk "^1.1.3"
@@ -1278,8 +1278,8 @@ resolve-from@^1.0.0:
   resolved "https://registry.yarnpkg.com/resolve-from/-/resolve-from-1.0.1.tgz#26cbfe935d1aeeeabb29bc3fe5aeb01e93d44226"
 
 resolve@^1.1.6, resolve@^1.1.7:
-  version "1.1.7"
-  resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.1.7.tgz#203114d82ad2c5ed9e8e0411b3932875e889e97b"
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.2.0.tgz#9589c3f2f6149d1417a40becc1663db6ec6bc26c"
 
 restore-cursor@^1.0.1:
   version "1.0.1"
@@ -1460,8 +1460,8 @@ tv4@^1.2.7:
   resolved "https://registry.yarnpkg.com/tv4/-/tv4-1.2.7.tgz#bd29389afc73ade49ae5f48142b5d544bf68d120"
 
 tweetnacl@^0.14.3, tweetnacl@~0.14.0:
-  version "0.14.4"
-  resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.4.tgz#8c9dbfb52795686f166cd2023794bcf103d13c2b"
+  version "0.14.5"
+  resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.5.tgz#5ae68177f192d4456269d108afa93ff8743f4f64"
 
 type-check@~0.3.2:
   version "0.3.2"

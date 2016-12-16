@@ -26,10 +26,19 @@ prepare:
 		npm config set $${npm_package_name}:iam_role_arn `echo $${JSON} | jq -r '.Stacks[].Outputs | map(select(.OutputKey == "LambdaExectionRoleArn")) | .[].OutputValue'`;
 
 deploy:
-	@bestzip .dist/src.zip src/*;
-	@aws $${PROFILE} $${REGION} cloudformation package \
+	@cp yarn.lock .dist;
+	@cp template.yml .dist;
+	@cp -r src .dist;
+	@sed -e 's/"postinstall".*$$/ /g' -e 's/"aws-sdk".*$$/ /g' package.json > .dist/package.json;
+	@cd .dist; \
+	if which yarn >/dev/null; then \
+		yarn install --production; \
+	else \
+		npm install --production; \
+	fi;
+	@cd .dist && aws $${PROFILE} $${REGION} cloudformation package \
 		--template-file template.yml \
-		--output-template-file .dist/template.yml \
+		--output-template-file template.yml \
 		--s3-bucket $${npm_package_config_s3_bucket};
 	@aws $${PROFILE} $${REGION} cloudformation deploy \
 		--template-file .dist/template.yml \
