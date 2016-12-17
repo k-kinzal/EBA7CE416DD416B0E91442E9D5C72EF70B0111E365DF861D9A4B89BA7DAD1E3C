@@ -30,7 +30,7 @@ exports.handler = (
         stateMachineArn: response.stateMachineArn
       };
       console.log('StateFunctions::DeleteStateMachine', params);
-      sf.deleteStateMachine(params, (err, data) => err ? reject(err) : resolve(response));
+      sf.deleteStateMachine(params, (err) => err ? reject(err) : resolve(response));
     });
   }).then((response) => {
     callback(null, {status: response.status, values: response.output ? JSON.parse(response.output) : null, executionArn: event});

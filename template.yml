@@ -98,7 +98,7 @@ Resources:
                 ErrorEquals: ["HandledError"]
                 IntervalSeconds: 1
                 MaxAttempts: 10
-                BackoffRate: 2.0
+                BackoffRate: 2.5
             Next: IfProgressToRetry
           IfProgressToRetry:
             Type: "Choice"
@@ -118,6 +118,8 @@ Resources:
             Next: ParallelMapFinishFunction
           Fail:
             Type: Fail
+            Cause: "Failed parallel execute."
+            Error: "ParallelExecuteError"
           Success:
             Type: Pass
             OutputPath: "$.values"
