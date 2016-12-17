@@ -1,4 +1,4 @@
-.PHONY: init prepare deploy destroy prepare-destroy clean echo
+.PHONY: init prepare deploy destroy prepare-destroy clean statelint
 
 PROFILE = $${npm_config_profile:+--profile $${npm_config_profile}};
 REGION = $${npm_config_region:+--region $${npm_config_region}}
@@ -65,3 +65,15 @@ clean:
 	@npm config delete ${npm_package_name}:s3_bucket;
 	@npm config delete ${npm_package_name}:stack_name;
 	@rimraf .dist;
+
+statelint:
+	@if which statelint >/dev/null; then \
+		mkdirp .tmp; \
+		yaml2json template.yml | \
+			jq '.Resources.StepFunctions.Properties.Definition' | \
+			sed -e 's/"Resource": null/"Resource": "arn:aws:lambda:region:account-id:function:function-name"/g'  > .tmp/state.json; \
+		statelint .tmp/state.json; \
+	else \
+		echo 'Please execute `gem install statelint`.' "\n"; \
+		exit 1; \
+	fi

@@ -25,7 +25,9 @@
     "destroy": "make destroy",
     "prepare-destroy": "make prepare-destroy",
     "clean": "make clean",
-    "lint": "eslint src/",
+    "lint:eslint": "eslint src/",
+    "lint:state": "make statelint",
+    "lint": "npm run lint:eslint && npm run lint:state",
     "check": "flow check"
   },
   "dependencies": {
@@ -43,6 +45,7 @@
     "flow-bin": "^0.36.0",
     "flow-typed": "^2.0.0",
     "mkdirp": "^0.5.1",
-    "rimraf": "^2.5.4"
+    "rimraf": "^2.5.4",
+    "yamljs": "^0.2.8"
   }
 }
