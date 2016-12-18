@@ -44,6 +44,20 @@ Resources:
                     console.log('StateFunctions::DeleteStateMachine', params);
                     sf.deleteStateMachine(params, (err, data) => err ? reject(err) : resolve(data));
                   }).then(() => {
+                    return (new Promise(function loop(resolve, reject) {
+                      let params = {
+                        stateMachineArn: `arn:aws:states:${process.env.AWS_REGION}:${context.invokedFunctionArn.split(":")[4]}:stateMachine:${event.ResourceProperties.Name}`
+                      };
+                      console.log('StateFunctions::DescribeStateMachine', params);
+                      sf.describeStateMachine(params, (err, data) => {
+                          if (err)  {
+                              err.code === 'StateMachineDoesNotExist' ? resolve() : reject(err);
+                          } else {
+                              setTimeout(loop, 500, resolve, reject);
+                          }
+                      });
+                    }));
+                }).then(() => {
                     return new Promise((resolve, reject) => {
                       let params = {
                         name: event.ResourceProperties.Name,
@@ -70,17 +84,17 @@ Resources:
                 stateMachineArn: data.stateMachineArn
               };
               console.log('CfnResponse::Success', responseData);
-              response.send(event, context, response.SUCCESS, responseData);
+              response.send(event, context, response.SUCCESS, responseData, event.PhysicalResourceId);
             }).catch((err) => {
               let responseData = {
                 Error: err.toString()
               };
               console.log('CfnResponse::Failed', responseData);
-              response.send(event, context, response.FAILED, responseData);
+              response.send(event, context, response.FAILED, responseData, event.PhysicalResourceId);
             });
           };
       Runtime: nodejs4.3
-      Timeout: 30
+      Timeout: 300
   StepFunctionsCustomResourceRole:
     Type: "AWS::IAM::Role"
     Properties:
