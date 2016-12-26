@@ -1,19 +1,19 @@
-type LambdaEvent = {};
+/* @flow */
 // https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/nodejs-prog-model-context.html
-type LambdaContext = {
+export type LambdaContext = {
   getRemainingTimeInMillis: () => number;
   callbackWaitsForEmptyEventLoop: boolean;
   functionName: string;
-  functionVersion: string;
+  functionVersion?: string;
   invokedFunctionArn: string;
-  memoryLimitInMB: number;
+  memoryLimitInMB: string;
   awsRequestId: string;
   logStreamName: string;
-  identity: ?{
+  identity?: {
     cognitoIdentityId: string;
     cognitoIdentityId: string;
   };
-  clientContext: ?{
+  clientContext?: {
     client: {
       installation_id: string;
       app_title: string;
@@ -33,4 +33,4 @@ type LambdaContext = {
 
 };
 // https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/nodejs-prog-model-handler.html#nodejs-prog-model-handler-callback
-type LambdaCallback = (error: ?Error, result?: any) => void;
+export type LambdaCallback<T> = (error: ?Error, result?: T) => void;

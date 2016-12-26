@@ -28,7 +28,6 @@ prepare:
 deploy:
 	@cp yarn.lock .dist;
 	@cp template.yml .dist;
-	@cp -r src .dist;
 	@sed -e 's/"postinstall".*$$/ /g' -e 's/"aws-sdk".*$$/ /g' package.json > .dist/package.json;
 	@cd .dist; \
 	if which yarn >/dev/null; then \

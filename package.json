@@ -19,15 +19,17 @@
   "scripts": {
     "postinstall": "flow-typed install",
     "init": "make init",
-    "prepare": "make prepare",
-    "encrypt": "aws ${npm_config_profile:+--profile $npm_config_profile} ${npm_config_region:+--region $npm_config_region} kms encrypt --key-id ${npm_package_config_key_id} --output text --query CiphertextBlob --plaintext",
-    "deploy": "make deploy",
-    "destroy": "make destroy",
-    "prepare-destroy": "make prepare-destroy",
-    "clean": "make clean",
     "lint:eslint": "eslint src/",
     "lint:state": "make statelint",
     "lint": "npm run lint:eslint && npm run lint:state",
+    "build": "babel src/**/*.js -d .dist/",
+    "build:production": "NODE_ENV=production babel src/**/*.js -d .dist/",
+    "prepare": "make prepare",
+    "encrypt": "aws ${npm_config_profile:+--profile $npm_config_profile} ${npm_config_region:+--region $npm_config_region} kms encrypt --key-id ${npm_package_config_key_id} --output text --query CiphertextBlob --plaintext",
+    "deploy": "npm run build && make deploy",
+    "destroy": "make destroy",
+    "prepare-destroy": "make prepare-destroy",
+    "clean": "make clean",
     "check": "flow check"
   },
   "dependencies": {
@@ -36,6 +38,11 @@
     "node-uuid": "^1.4.7"
   },
   "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-plugin-syntax-flow": "^6.18.0",
+    "babel-plugin-transform-flow-strip-types": "^6.21.0",
+    "babel-plugin-typecheck": "^3.9.0",
+    "babel-preset-env": "^1.1.4",
     "eslint": "^3.11.1",
     "eslint-config-standard": "^6.2.1",
     "eslint-plugin-flowtype": "^2.29.1",

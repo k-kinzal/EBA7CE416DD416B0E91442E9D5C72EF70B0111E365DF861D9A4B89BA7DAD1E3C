@@ -22,7 +22,7 @@ type StepFunctions_DescribeStateMachine_Params = {
 type StepFunctions_DescribeStateMachine_Result = {
   stateMachineArn: string;
   name: string;
-  status: string;
+  status: "ACTIVE" | "DELETING";
   definition: string;
   roleArn: string;
   creationDate: number;
@@ -34,7 +34,7 @@ type StepFunctions_DescribeExecution_Result = {
   executionArn: string;
   stateMachineArn: string;
   name: string;
-  status: string;
+  status: "RUNNING" | "SUCCEEDED" | "FAILED" | "TIMED_OUT" | "ABORTED";
   startDate: number;
   stopDate: number;
   input: string;

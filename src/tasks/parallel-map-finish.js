@@ -1,18 +1,26 @@
 /* @flow */
 'use strict';
 
-let AWS = require('aws-sdk');
+import type {LambdaContext, LambdaCallback} from '../typed/lambda.js';
+import type {LambdaResult as LambdaEvent} from './parallel-map-execute.js';
+import type {LambdaResult as MapperLambdaResult} from './mapper.js';
+
+import AWS from 'aws-sdk';
+
+export type LambdaResult = {
+  status: $PropertyType<StepFunctions_DescribeExecution_Result, 'status'>;
+  values: ?Array<MapperLambdaResult>;
+  executionArn: LambdaEvent;
+};
+
 let sf = new AWS.StepFunctions();
 
-exports.handler = (
-  event/*: mixed */,
-  context/*: LambdaContext */,
-  callback/*: LambdaCallback */) => {
+export function handler(
+  event: LambdaEvent,
+  context: LambdaContext,
+  callback: LambdaCallback<LambdaResult>) {
 
   Promise.resolve().then(() => {
-    if (typeof event !== 'string') {
-      throw new TypeError(`Input value is not string`);
-    }
     return {
       executionArn: event
     }
@@ -23,7 +31,7 @@ exports.handler = (
     });
   }).then((response) => {
     if (response.status !== 'SUCCEEDED') {
-      return response;
+      return Promise.resolve(response);
     }
     return new Promise((resolve, reject) => {
       let params = {
@@ -34,11 +42,7 @@ exports.handler = (
     });
   }).then((response) => {
     callback(null, {status: response.status, values: response.output ? JSON.parse(response.output) : null, executionArn: event});
-  }).catch((err/*: Error | mixed */) => {
-    if (err instanceof Error) {
-      callback(err);
-    } else {
-      callback(new Error(err));
-    }
+  }).catch((err) => {
+    callback(err);
   });
 };

@@ -1,14 +1,19 @@
+
 /* @flow */
 'use strict';
 
-exports.handler = (
-  event/*: mixed */,
-  context/*: LambdaContext */,
-  callback/*: LambdaCallback */) => {
+import type {LambdaContext, LambdaCallback} from '../typed/lambda.js';
+import type {LambdaResult as RangeResult} from './range.js';
 
-  if (typeof event !== 'number') {
-    throw new TypeError(`Invalid arguments: '${JSON.stringify(event)}' is not a number.`);
-  }
+type ArrayMatch<T, U: Array<T>> = T;
+
+export type LambdaEvent = ArrayMatch<*, RangeResult>;
+export type LambdaResult = LambdaEvent;
+
+exports.handler = (
+  event: LambdaEvent,
+  context: LambdaContext,
+  callback: LambdaCallback<LambdaResult>) => {
 
   callback(null, event + 1);
 };

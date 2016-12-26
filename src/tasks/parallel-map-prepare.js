@@ -1,23 +1,28 @@
 /* @flow */
 'use strict';
 
-let _ = require('lodash');
-let AWS = require('aws-sdk');
-let uuid = require('node-uuid');
+import type {LambdaContext, LambdaCallback} from '../typed/lambda.js';
+import type {LambdaResult as LambdaEvent} from './range.js';
+
+import _ from 'lodash';
+import AWS from 'aws-sdk';
+import uuid from 'node-uuid';
+
+export type LambdaResult = {
+  values: LambdaEvent;
+  stateMachineArn: string;
+};
 
 let sf = new AWS.StepFunctions();
 
-exports.handler = (
-  event/*: mixed */,
-  context/*: LambdaContext */,
-  callback/*: LambdaCallback */) => {
+export function handler(
+  event: LambdaEvent,
+  context: LambdaContext,
+  callback: LambdaCallback<LambdaResult>) {
 
   Promise.resolve().then(() => {
     if (typeof process.env.MAPPER_FUNCTION_ARN !== 'string') {
       throw new TypeError(`Undefined environment: 'MAPPER_FUNCTION_ARN'`);
-    }
-    if (!Array.isArray(event)) {
-      throw new TypeError(`Input values is not array`);
     }
     return {
       mapperFunctionArn: process.env.MAPPER_FUNCTION_ARN,
@@ -34,8 +39,8 @@ exports.handler = (
           Parallel: {
             Type: `Parallel`,
             Branches: _.range(0, data.values.length).map((i) => {
-              var branch = {StartAt: `Mapper${i}]`, States: {}};
-              branch.States[`Mapper${i}]`] = {
+              var branch = {StartAt: `Mapper${i}`, States: {}};
+              branch.States[`Mapper${i}`] = {
                 Type: 'Task',
                 InputPath: `$[${i}]`,
                 Resource: data.mapperFunctionArn,
@@ -55,11 +60,7 @@ exports.handler = (
     });
   }).then((response) => {
     callback(null, {values: event, stateMachineArn: response.stateMachineArn});
-  }).catch((err/*: Error | mixed */) => {
-    if (err instanceof Error) {
-      callback(err);
-    } else {
-      callback(new Error(err));
-    }
+  }).catch((err) => {
+    callback(err);
   });
 };
