@@ -6,6 +6,7 @@ import type {LambdaResult as LambdaEvent} from './parallel-map-execute.js';
 import type {LambdaResult as MapperLambdaResult} from './mapper.js';
 
 import AWS from 'aws-sdk';
+import promisify from '../libs/promisify.js';
 
 export type LambdaResult = {
   status: $PropertyType<StepFunctions_DescribeExecution_Result, 'status'>;
@@ -25,24 +26,21 @@ export function handler(
       executionArn: event
     }
   }).then((params) => {
-    return new Promise((resolve, reject) => {
-      console.log('StateFunctions::DescribeExecution', params);
-      sf.describeExecution(params, (err, data) => err ? reject(err) : resolve(data));
-    });
+    console.log('StateFunctions::DescribeExecution', params);
+    return promisify(sf.describeExecution.bind(sf))(params);
   }).then((response) => {
     if (response.status !== 'SUCCEEDED') {
       return Promise.resolve(response);
-    }
-    return new Promise((resolve, reject) => {
+    } else {
       let params = {
         stateMachineArn: response.stateMachineArn
       };
       console.log('StateFunctions::DeleteStateMachine', params);
-      sf.deleteStateMachine(params, (err) => err ? reject(err) : resolve(response));
-    });
+      return promisify(sf.deleteStateMachine.bind(sf))(params).then(() => response);
+    };
   }).then((response) => {
     callback(null, {status: response.status, values: response.output ? JSON.parse(response.output) : null, executionArn: event});
-  }).catch((err) => {
+  }).catch((err: mixed) => {
     callback(err);
   });
 };

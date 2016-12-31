@@ -6,6 +6,7 @@ import type {LambdaResult as LambdaEvent} from './range.js';
 
 import _ from 'lodash';
 import AWS from 'aws-sdk';
+import promisify from '../libs/promisify.js';
 import uuid from 'node-uuid';
 
 export type LambdaResult = {
@@ -54,13 +55,11 @@ export function handler(
       })
     }
   }).then((params) => {
-    return new Promise((resolve, reject) => {
-      console.log('StateFunctions::CreateStateMachine', params);
-      sf.createStateMachine(params, (err, data) => err ? reject(err) : resolve(data));
-    });
+    console.log('StateFunctions::CreateStateMachine', params);
+    return promisify(sf.createStateMachine.bind(sf))(params);
   }).then((response) => {
     callback(null, {values: event, stateMachineArn: response.stateMachineArn});
-  }).catch((err) => {
+  }).catch((err: mixed) => {
     callback(err);
   });
 };

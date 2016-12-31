@@ -33,4 +33,4 @@ export type LambdaContext = {
 
 };
 // https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/nodejs-prog-model-handler.html#nodejs-prog-model-handler-callback
-export type LambdaCallback<T> = (error: ?Error, result?: T) => void;
+export type LambdaCallback<T> = (error: ?Error | ?mixed, result?: T) => void;

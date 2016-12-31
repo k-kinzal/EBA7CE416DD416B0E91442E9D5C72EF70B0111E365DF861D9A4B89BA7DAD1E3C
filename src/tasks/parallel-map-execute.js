@@ -5,6 +5,7 @@ import type {LambdaContext, LambdaCallback} from '../typed/lambda.js';
 import type {LambdaResult as LambdaEvent} from './parallel-map-prepare.js';
 
 import AWS from 'aws-sdk';
+import promisify from '../libs/promisify.js';
 
 export type LambdaResult = string;
 
@@ -21,13 +22,11 @@ export function handler(
       input: JSON.stringify(event.values)
     };
   }).then((params) => {
-    return new Promise((resolve, reject) => {
-      console.log('StateFunctions::StartExecution', params);
-      sf.startExecution(params, (err, data) => err ? reject(err) : resolve(data));
-    });
+    console.log('StateFunctions::StartExecution', params);
+    return promisify(sf.startExecution.bind(sf))(params);
   }).then((response) => {
     callback(null, response.executionArn);
-  }).catch((err) => {
+  }).catch((err: mixed) => {
     callback(err);
   });
 };
